@@ -1,0 +1,252 @@
+/* General Reset */
+body, h1, h2, h3, p, ul, li, input, button {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  line-height: 1.5;
+  padding: 10px;
+  /* Remove any height restrictions */
+  height: auto;
+  max-height: none;
+  overflow-y: auto; /* Enable scrolling if content exceeds the viewport */
+}
+
+/* Header Styling */
+header {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  text-align: center;
+  border-radius: 5px;
+}
+
+/* Button Styling */
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Input Styling */
+input[type="text"], input[type="email"], input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* List Styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  padding: 8px;
+  background-color: #fff;
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Footer Styling */
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #777;
+}
+
+.danger-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.danger-button:hover {
+  background-color: #ff1a1a;
+}
+
+.warning-text {
+  color: #ff4d4d;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+#filter-input {
+  width: calc(100% - 110px);
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+label[for="filter-input"] {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+#toggle-filter-mode {
+  margin-left: 10px;
+}
+
+#regex-checkbox {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Removed clear filter button styles */
+/* #clear-filter {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#clear-filter:hover {
+  background-color: #0056b3;
+} */
+
+.feedback {
+  margin-top: 10px;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.feedback.error {
+  color: #ff4d4d;
+  background-color: #ffe6e6;
+}
+
+.feedback.success {
+  color: #4CAF50;
+  background-color: #e6ffe6;
+}
+
+/* Restrict favicon size */
+.favicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Align fields in a grid with 5 columns */
+#tab-list-section ul {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+#tab-list-section li {
+  display: contents;
+}
+
+/* User agent styling */
+.user-agent {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+/* Tab link styling */
+.tab-link {
+  color: inherit; /* Use inherited color for better contrast */
+  text-decoration: none;
+  display: inline-block; /* Ensure padding and background apply properly */
+}
+
+.tab-link:hover {
+  text-decoration: underline;
+}
+
+.tab-link:visited {
+  color: inherit; /* Ensure visited links maintain the same color for consistency */
+}
+
+/* OS and browser icon styling */
+.os-icon, .browser-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Font Awesome icon styling for OS and browser */
+.os-icon, .browser-icon {
+  font-family: "FontAwesome";
+  font-weight: normal;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.info-text {
+  font-size: 0.85em;
+  color: #555;
+  margin-top: 5px;
+}
+
+.sync-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.sync-button:hover {
+  background-color: #0056b3;
+}
+
+/* Tab Item Styling */
+.tab-item {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.tab-item .tab-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.tab-item .tab-link:hover {
+  text-decoration: underline;
+}
+
+.tab-item .last-accessed-label {
+  font-size: 0.9em;
+  color: #666;
+}

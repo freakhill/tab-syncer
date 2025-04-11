@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Syncer</title>
+  <link rel="stylesheet" href="/dist/styles.css">
+  <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+  <script src="/dist/popup.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Tab Syncer</h1>
+      <button id="sync-all-tabs" class="sync-button">Sync All Tabs Now</button>
+    </header>
+    <section>
+      <label for="filter-input">Filter Tabs:</label>
+      <input type="text" id="filter-input" placeholder="Enter text to filter tabs by URL or title" />
+      <label for="regex-checkbox">
+        <input type="checkbox" id="regex-checkbox" />
+        Regex?
+      </label>
+    </section>
+    <section id="tab-list-section">
+      <ul id="tab-list"></ul>
+      <p id="no-tabs-message" hidden>No tabs found.</p>
+      <p id="error-message" hidden></p>
+      <p id="status" role="alert" class="feedback"></p>
+    </section>
+    <section>
+      <button id="purge-tabs" class="danger-button">Purge All Tabs</button>
+      <p class="warning-text">This will delete all tab records for all machines. Use with caution.</p>
+    </section>
+    <section>
+      <button id="refresh">Refresh Tabs</button>
+    </section>
+  </main>
+</body>
+</html>

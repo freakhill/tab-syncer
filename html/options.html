@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Syncer Settings</title>
+  <link rel="stylesheet" href="/dist/styles.css">
+  <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+  <script src="/dist/options.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Tab Syncer Settings</h1>
+    </header>
+    <section>
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="supabaseUrl">Supabase URL:</label>
+          <input type="text" id="supabaseUrl" placeholder="Enter your Supabase URL" required />
+        </div>
+        <div class="form-group">
+          <label for="supabaseApiKey">Supabase API Key:</label>
+          <input type="text" id="supabaseApiKey" placeholder="Enter your Supabase API Key" required />
+        </div>
+        <div class="form-group">
+          <label for="syncPeriod">Tab Sync Period (seconds):</label>
+          <input type="number" id="syncPeriod" placeholder="Enter sync period in seconds" min="10" required />
+        </div>
+        <div class="form-group">
+          <label for="dbEmail">Database Email:</label>
+          <input type="email" id="dbEmail" placeholder="Enter your database email" required />
+        </div>
+        <div class="form-group">
+          <label for="dbPassword">Database Password:</label>
+          <input type="password" id="dbPassword" placeholder="Enter your database password" required />
+        </div>
+        <div class="form-group">
+          <label for="timeshift">Manual Timeshift (hours):</label>
+          <input type="number" id="timeshift" placeholder="Enter timeshift in hours" required />
+          <p class="info-text">
+            This option is useful for privacy-minded browsers that erase timezone information from APIs. 
+            Adjust this value to align timestamps with your local timezone.
+          </p>
+        </div>
+        <button type="button" id="save">Save</button>
+      </form>
+      <p id="status" role="alert" class="feedback"></p>
+    </section>
+  </main>
+</body>
+</html>
