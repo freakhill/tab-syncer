@@ -76,132 +76,129 @@ async function initializeSupabase() {
   chrome.runtime.sendMessage({ action: "supabaseError", error: null });
 }
 
-// Sync a single tab to the Supabase database
-async function syncTab(tab) {
+async function retryIfSupabaseNotInitialized(operation) {
   if (!supabase) {
     console.warn("Supabase client is not initialized. Attempting to initialize...");
     await initializeSupabase();
     if (!supabase) {
       console.error("Failed to initialize Supabase client.");
-      return;
+      return { error: "Supabase client is not initialized." };
     }
   }
 
-  if (!tab.url || !tab.url.startsWith("http")) {
-    console.warn("Ignoring tab with unsupported URL:", tab.url);
-    return;
+  try {
+    return await operation();
+  } catch (error) {
+    console.error("Operation failed after reinitialization:", error.message);
+    return { error: error.message };
   }
+}
 
-  const lastAccessed = tab.lastAccessed && typeof tab.lastAccessed === "number"
-    ? new Date(tab.lastAccessed - timeshift * 60 * 60 * 1000).toISOString() // Apply timeshift and convert to UTC string
-    : null;
-  const userAgent = navigator.userAgent;
-  const faviconurl = tab.favIconUrl && (tab.favIconUrl.startsWith("http") ? tab.favIconUrl : null); // Ignore invalid faviconurl
+// Sync a single tab to the Supabase database
+async function syncTab(tab) {
+  const operation = async () => {
+    if (!tab.url || !tab.url.startsWith("http")) {
+      console.warn("Ignoring tab with unsupported URL:", tab.url);
+      return;
+    }
 
-  const { error } = await supabase.from("tabs").upsert({
-    useragent: userAgent,
-    tabid: tab.id,
-    url: tab.url,
-    title: tab.title,
-    faviconurl,
-    pinned: tab.pinned ? true : false,
-    lastaccessed: lastAccessed,
-  });
+    const lastAccessed = tab.lastAccessed && typeof tab.lastAccessed === "number"
+      ? new Date(tab.lastAccessed - timeshift * 60 * 60 * 1000).toISOString()
+      : null;
+    const userAgent = navigator.userAgent;
+    const faviconurl = tab.favIconUrl && (tab.favIconUrl.startsWith("http") ? tab.favIconUrl : null);
 
-  if (error) {
-    console.error("Failed to sync tab:", error.message);
-  }
+    const { error } = await supabase.from("tabs").upsert({
+      useragent: userAgent,
+      tabid: tab.id,
+      url: tab.url,
+      title: tab.title,
+      faviconurl,
+      pinned: tab.pinned ? true : false,
+      lastaccessed: lastAccessed,
+    });
+
+    if (error) {
+      throw new Error(`Failed to sync tab: ${error.message}`);
+    }
+  };
+
+  return await retryIfSupabaseNotInitialized(operation);
 }
 
 // Remove a tab from the Supabase database
 async function removeTab(tabId) {
-  if (!supabase) {
-    console.warn("Supabase client is not initialized. Attempting to initialize...");
-    await initializeSupabase();
-    if (!supabase) {
-      console.error("Failed to initialize Supabase client.");
-      return;
+  const operation = async () => {
+    const userAgent = navigator.userAgent;
+
+    const { error } = await supabase
+      .from("tabs")
+      .delete()
+      .eq("useragent", userAgent)
+      .eq("tabid", tabId);
+
+    if (error) {
+      throw new Error(`Failed to remove tab: ${error.message}`);
     }
-  }
+  };
 
-  const userAgent = navigator.userAgent;
-
-  const { error } = await supabase
-    .from("tabs")
-    .delete()
-    .eq("useragent", userAgent)
-    .eq("tabid", tabId);
-
-  if (error) {
-    console.error("Failed to remove tab:", error.message);
-  }
+  return await retryIfSupabaseNotInitialized(operation);
 }
 
 // Synchronize all currently open tabs
 async function syncAllTabs(force = false) {
-  if (!supabase) {
-    console.warn("Supabase client is not initialized. Attempting to initialize...");
-    await initializeSupabase();
-    if (!supabase) {
-      console.error("Failed to initialize Supabase client.");
+  const operation = async () => {
+    const now = Date.now();
+    if (!force && now - lastTabActivity > (syncInterval || 600) * 1000) {
+      console.log("Skipping sync as there was no tab activity in the last sync period.");
       return;
     }
-  }
 
-  const now = Date.now();
-  if (!force && now - lastTabActivity > (syncInterval || 600) * 1000) {
-    console.log("Skipping sync as there was no tab activity in the last sync period.");
-    return;
-  }
+    const tabs = await chrome.tabs.query({});
+    const userAgent = navigator.userAgent;
 
-  const tabs = await chrome.tabs.query({});
-  const userAgent = navigator.userAgent;
+    const openTabUrls = tabs
+      .filter((tab) => tab.url && tab.url.startsWith("http"))
+      .map((tab) => tab.url);
 
-  const openTabUrls = tabs
-    .filter((tab) => tab.url && tab.url.startsWith("http")) // Ignore tabs with unsupported URLs
-    .map((tab) => tab.url);
+    const tabData = tabs
+      .filter((tab) => tab.url && tab.url.startsWith("http"))
+      .map((tab) => {
+        const lastAccessed = tab.lastAccessed && typeof tab.lastAccessed === "number"
+          ? new Date(tab.lastAccessed - timeshift * 60 * 60 * 1000).toISOString()
+          : null;
+        const faviconurl = tab.favIconUrl && (tab.favIconUrl.startsWith("http") ? tab.favIconUrl : null);
 
-  const tabData = tabs
-    .filter((tab) => tab.url && tab.url.startsWith("http")) // Ignore tabs with unsupported URLs
-    .map((tab) => {
-      const lastAccessed = tab.lastAccessed && typeof tab.lastAccessed === "number"
-        ? new Date(tab.lastAccessed - timeshift * 60 * 60 * 1000).toISOString() // Apply timeshift and convert to UTC string
-        : null;
-      const faviconurl = tab.favIconUrl && (tab.favIconUrl.startsWith("http") ? tab.favIconUrl : null); // Ignore invalid faviconurl
+        return {
+          useragent: userAgent,
+          tabid: tab.id,
+          url: tab.url,
+          title: tab.title,
+          faviconurl,
+          pinned: tab.pinned ? true : false,
+          lastaccessed: lastAccessed,
+        };
+      });
 
-      return {
-        useragent: userAgent,
-        tabid: tab.id,
-        url: tab.url,
-        title: tab.title,
-        faviconurl,
-        pinned: tab.pinned ? true : false,
-        lastaccessed: lastAccessed,
-      };
-    });
+    if (tabData.length > 0) {
+      const { error: upsertError } = await supabase.from("tabs").upsert(tabData);
+      if (upsertError) {
+        throw new Error(`Failed to sync tabs: ${upsertError.message}`);
+      }
+    }
 
-  // Upsert current open tabs
-  console.log(`Syncing tabs to Supabase... ${tabData.length} tabs to sync.`);
-  if (tabData.length === 0) {
-    console.log("No tabs to sync.");
-    return;
-  } else {
-  const { error: upsertError } = await supabase.from("tabs").upsert(tabData);
-  if (upsertError) {
-    console.error("Failed to sync tabs:", upsertError.message);
-  }
-  }
-  
-  // Delete tabs from the database that are not currently open
-  const { error: deleteError } = await supabase
-    .from("tabs")
-    .delete()
-    .eq("useragent", userAgent)
-    .not("url", "in", openTabUrls);
+    const { error: deleteError } = await supabase
+      .from("tabs")
+      .delete()
+      .eq("useragent", userAgent)
+      .not("url", "in", openTabUrls);
 
-  if (deleteError) {
-    console.error("Failed to delete tabs:", deleteError.message);
-  }
+    if (deleteError) {
+      throw new Error(`Failed to delete tabs: ${deleteError.message}`);
+    }
+  };
+
+  return await retryIfSupabaseNotInitialized(operation);
 }
 
 // Remove multiple tabs from the Supabase database
@@ -278,6 +275,12 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 // Handle messages from the popup script and options page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "ping") {
+    console.log("Received ping from popup. Service thread is active.");
+    sendResponse({ success: true, message: "Service thread is awake." });
+    return true; // Keep the message channel open for async response if needed
+  }
+
   if (message.action === "getTabs") {
     getTabsFromDatabase().then((result) => sendResponse(result));
     return true; // Keep the message channel open for async response

@@ -1,6 +1,15 @@
 import { UAParser } from "ua-parser-js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Send a ping message to the background script to wake up the service thread
+  chrome.runtime.sendMessage({ action: "ping" }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error("Failed to send ping to background script:", chrome.runtime.lastError.message);
+    } else {
+      console.log("Ping response from background script:", response);
+    }
+  });
+
   const tabList = document.getElementById("tab-list");
   const noTabsMessage = document.getElementById("no-tabs-message");
   const errorMessage = document.getElementById("error-message");
